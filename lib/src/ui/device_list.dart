@@ -3,6 +3,7 @@ import 'package:flutter_reactive_ble/flutter_reactive_ble.dart';
 import 'package:provider/provider.dart';
 import 'package:stream_provider_ble/src/ble/ble_device_connector.dart';
 import 'package:stream_provider_ble/src/ble/ble_scanner.dart';
+import 'package:stream_provider_ble/src/ui/device_interactor_screen.dart';
 
 class DeviceListScreen extends StatelessWidget {
   const DeviceListScreen({Key? key}) : super(key: key);
@@ -54,13 +55,22 @@ class __DeviceListState extends State<_DeviceList> {
                 children: widget.scannerState.discoveredDevices
                     .map(
                       (device) => ListTile(
-                          title: Text(device.name),
-                          subtitle: Text("${device.id}\nRSSI: ${device.rssi}"),
-                          leading: const Icon(Icons.bluetooth),
-                          onTap: () async {
-                            widget.stopScan();
-                            widget.deviceConnector.connect(device.id);
-                          }),
+                        title: Text(device.name),
+                        subtitle: Text("${device.id}\nRSSI: ${device.rssi}"),
+                        leading: const Icon(Icons.bluetooth),
+                        onTap: () async {
+                          widget.stopScan();
+                          widget.deviceConnector.connect(device.id);
+                          await Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                                builder: (context) => DeviceInteractorScreen(
+                                    deviceId: device.id)),
+                          );
+                          widget.deviceConnector.disconnect(device.id);
+                          widget.startScan([]);
+                        },
+                      ),
                     )
                     .toList(),
               ),
